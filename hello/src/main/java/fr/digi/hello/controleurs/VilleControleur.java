@@ -152,6 +152,12 @@ public class VilleControleur {
         return ResponseEntity.ok("Ville modifiée avec succès");
     }
 
+    /**
+     * Supprime une ville existante en la recherchant par son nom.
+     *
+     * @param nom Le nom de la ville à supprimer, passé en tant que variable d'URL.
+     * @return Une réponse HTTP indiquant le succès de la suppression ou une erreur 404 si la ville n'existe pas.
+     */
     @DeleteMapping("/{nom}")
     public ResponseEntity<?> supprimerVilleParNom(@PathVariable String nom) {
         // Recherche de la ville existante par nom dans la liste
@@ -170,6 +176,7 @@ public class VilleControleur {
 
         return ResponseEntity.ok("Ville supprimée avec succès");
     }
+
 
 
 }
