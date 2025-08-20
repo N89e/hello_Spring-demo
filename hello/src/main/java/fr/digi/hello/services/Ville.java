@@ -12,6 +12,7 @@ public class Ville {
     @Size(min = 2, message = "Le nom de la ville doit contenir au moins 2 caractères")
     private String nom;
 
+    @NotNull(message = "Le nombre d'habitant de la ville ne peut pas être nul")
     @Min(value = 1, message = "Le nombre d'habitants doit être supérieur ou égal à 1")
     private int nbHabitants;
 
