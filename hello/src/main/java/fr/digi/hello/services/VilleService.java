@@ -26,11 +26,32 @@ public class VilleService {
         return villeDao.findByNomIgnoreCase(nom);
     }
 
+    public Optional<Ville> extractVille(int id) {
+        return villeDao.findById(id);
+    }
+
     /**
-     * Insère une nouvelle ville.
+     * Modifie une ville identifiée par son ID
+     * (Suivant le TP mais je ne trouve pas pertinant de rechercher par l'ID car l'utilisateur ne connais pas son id).
      */
-    public List<Ville> insertVille(Ville ville) {
-        villeDao.save(ville);
+    public List<Ville> modifierVille(int idVille, Ville villeModifie) {
+        Optional<Ville> opt = villeDao.findById(idVille);
+        if (opt.isPresent()) {
+            Ville ville = opt.get();
+            ville.setNom(villeModifie.getNom());
+            ville.setNbHabitants(villeModifie.getNbHabitants());
+            villeDao.save(ville);
+        }
+        return villeDao.findAll();
+    }
+
+    /**
+     * Supprime une ville identifiée par son ID.
+     * (Suivant le TP mais je ne trouve pas pertinant de supprimer par l'ID car l'utilisateur ne connais pas son id).
+     *
+     */
+    public List<Ville> supprimerVille(int idVille) {
+        villeDao.deleteById(idVille);
         return villeDao.findAll();
     }
 
@@ -57,4 +78,11 @@ public class VilleService {
         return villeDao.findAll();
     }
 
+    /**
+     * Insère une nouvelle ville.
+     */
+    public List<Ville> insertVille(Ville ville) {
+        villeDao.save(ville);
+        return villeDao.findAll();
+    }
 }

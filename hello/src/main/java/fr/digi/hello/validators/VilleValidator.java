@@ -1,44 +1,39 @@
 package fr.digi.hello.validators;
 
-import fr.digi.hello.items.Ville;
+import fr.digi.hello.dto.VilleDto;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-/**
- * Validator personnalisé pour valider les contraintes métier de l'objet Ville.
- * Vérifie que le nom est non nul et d'au moins 2 caractères,
- * et que le nombre d'habitants est supérieur ou égal à 1.
- */
 @Component
 public class VilleValidator implements Validator {
 
-    /**
-     * Indique que ce validator supporte la classe Ville.
-     *
-     * @param clazz La classe à vérifier.
-     * @return true si la classe est assignable de Ville, false sinon.
-     */
     @Override
     public boolean supports(Class<?> clazz) {
-        return Ville.class.isAssignableFrom(clazz);
+        return VilleDto.class.isAssignableFrom(clazz);
     }
 
-    /**
-     * Valide les attributs de l'objet Ville.
-     *
-     * @param target L'objet Ville à valider.
-     * @param errors L'objet Errors pour enregistrer les erreurs éventuelles.
-     */
     @Override
     public void validate(Object target, Errors errors) {
-        Ville ville = (Ville) target;
+        VilleDto ville = (VilleDto) target;
 
-        if (ville.getNom() == null || ville.getNom().length() < 2) {
-            errors.rejectValue("nom", "nom.size", "Le nom de la ville doit contenir au moins 2 caractères");
+        // Validation du nom : non null et au moins 2 caractères
+        if (ville.getNom() == null || ville.getNom().trim().isEmpty()) {
+            errors.rejectValue("nom", "NomVide", "Le nom ne peut pas être vide");
+        } else if (ville.getNom().length() < 2) {
+            errors.rejectValue("nom", "NomCourt", "Le nom doit contenir au moins 2 caractères");
         }
-        if (ville.getNbHabitants() == null || ville.getNbHabitants() < 1) {
-            errors.rejectValue("nbHabitants", "habitants.min", "Le nombre d'habitants doit être supérieur ou égal à 1");
+
+        // Validation du nombre d'habitants : non null et >= 1
+        if (ville.getNbHabitants() == null) {
+            errors.rejectValue("nbHabitants", "NbHabitantsVide", "Le nombre d'habitants est obligatoire");
+        } else if (ville.getNbHabitants() < 1) {
+            errors.rejectValue("nbHabitants", "NbHabitantsInvalide", "Le nombre d'habitants doit être supérieur ou égal à 1");
+        }
+
+        // Validation du nom du département (optionnelle, mais si présent non vide)
+        if (ville.getDepartement() != null && ville.getDepartement().trim().isEmpty()) {
+            errors.rejectValue("departement", "DepartementVide", "Le nom du département ne peut pas être vide");
         }
     }
 }

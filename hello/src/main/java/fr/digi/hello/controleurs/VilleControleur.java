@@ -1,68 +1,61 @@
 package fr.digi.hello.controleurs;
 
+import fr.digi.hello.dao.DepartementDao;
+import fr.digi.hello.dto.VilleDto;
+import fr.digi.hello.items.Departement;
 import fr.digi.hello.items.Ville;
+import fr.digi.hello.mappers.MapperUtil;
 import fr.digi.hello.services.VilleService;
 import fr.digi.hello.validators.VilleValidator;
 import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Contrôleur REST pour gérer les opérations CRUD sur les villes.
- * Utilise le nom de la ville pour identifier chaque ressource.
- */
 @RestController
 @RequestMapping("/villes")
 public class VilleControleur {
 
     private final VilleService villeService;
+    private final DepartementDao departementDao;
     private final VilleValidator villeValidator;
 
-    public VilleControleur(VilleService villeService, VilleValidator villeValidator) {
+    public VilleControleur(VilleService villeService, DepartementDao departementDao, VilleValidator villeValidator) {
         this.villeService = villeService;
+        this.departementDao = departementDao;
         this.villeValidator = villeValidator;
     }
 
-    /**
-     * Récupère la liste de toutes les villes.
-     *
-     * @return liste des villes existantes
-     */
     @GetMapping
-    public List<Ville> getAllVilles() {
-        return villeService.extractVilles();
+    public List<VilleDto> getAllVilles() {
+        List<Ville> villes = villeService.extractVilles();
+        return villes.stream()
+                .map(MapperUtil::toVilleDto)
+                .toList();
     }
 
-    /**
-     * Récupère une ville par son nom.
-     *
-     * @param nom nom de la ville à rechercher
-     * @return ResponseEntity avec la ville si trouvée, sinon 404
-     */
-    @GetMapping("/{nom}")
-    public ResponseEntity<Ville> getVilleParNom(@PathVariable String nom) {
-        return villeService.extractVille(nom)
+    @GetMapping("/{id}")
+    public ResponseEntity<VilleDto> getVilleParId(@PathVariable int id) {
+        return villeService.extractVille(id)
+                .map(MapperUtil::toVilleDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Ajoute une nouvelle ville en base après validation.
-     *
-     * @param nouvelleVille nouvel objet Ville à ajouter
-     * @param bindingResult conteneur des erreurs de validation
-     * @return ResponseEntity avec la liste mise à jour des villes si succès, ou avec les erreurs sinon
-     */
+    @GetMapping("/nom/{nom}")
+    public ResponseEntity<VilleDto> getVilleParNom(@PathVariable String nom) {
+        return villeService.extractVille(nom)
+                .map(MapperUtil::toVilleDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public ResponseEntity<?> createVille(@Valid @RequestBody Ville nouvelleVille, BindingResult bindingResult) {
+    public ResponseEntity<?> createVille(@Valid @RequestBody VilleDto villeDto, BindingResult bindingResult) {
 
-        villeValidator.validate(nouvelleVille, bindingResult);
-
+        villeValidator.validate(villeDto, bindingResult);
         if (bindingResult.hasErrors()) {
             List<String> erreurs = bindingResult.getAllErrors()
                     .stream()
@@ -71,47 +64,56 @@ public class VilleControleur {
             return ResponseEntity.badRequest().body(erreurs);
         }
 
-        List<Ville> villes = villeService.insertVille(nouvelleVille);
-        return ResponseEntity.ok(villes);
-    }
-
-    /**
-     * Modifie une ville existante identifiée par son nom.
-     *
-     * @param nom           nom de la ville à modifier
-     * @param villeModifiee objet Ville contenant les nouvelles données
-     * @return ResponseEntity avec la liste mise à jour des villes si succès, ou avec les erreurs sinon
-     */
-    @PutMapping("/{nom}")
-    public ResponseEntity<?> updateVille(@PathVariable String nom, @RequestBody Ville villeModifiee) {
-
-        Errors erreurs = new BeanPropertyBindingResult(villeModifiee, "ville");
-        villeValidator.validate(villeModifiee, erreurs);
-
-        if (erreurs.hasErrors()) {
-            List<String> messagesErreurs = erreurs.getAllErrors()
-                    .stream()
-                    .map(error -> error.getDefaultMessage())
-                    .toList();
-
-            return ResponseEntity.badRequest().body(messagesErreurs);
+        Departement departement = null;
+        if (villeDto.getDepartement() != null && !villeDto.getDepartement().isEmpty()) {
+            departement = departementDao.findByNomIgnoreCase(villeDto.getDepartement())
+                    .orElseThrow(() -> new RuntimeException("Département introuvable"));
         }
 
-        List<Ville> villes = villeService.modifierVilleParNom(nom, villeModifiee);
-        return ResponseEntity.ok(villes);
+        Ville ville = MapperUtil.toVille(villeDto, departement);
+
+        List<Ville> villes = villeService.insertVille(ville);
+
+        List<VilleDto> dtos = villes.stream().map(MapperUtil::toVilleDto).toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
+    @PutMapping("/{nom}")
+    public ResponseEntity<?> updateVille(@PathVariable String nom, @Valid @RequestBody VilleDto villeDto, BindingResult bindingResult) {
 
-    /**
-     * Supprime une ville par son nom.
-     *
-     * @param nom nom de la ville à supprimer
-     * @return ResponseEntity avec la liste mise à jour des villes après suppression
-     */
+        villeValidator.validate(villeDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            List<String> erreurs = bindingResult.getAllErrors()
+                    .stream()
+                    .map(err -> err.getDefaultMessage())
+                    .toList();
+            return ResponseEntity.badRequest().body(erreurs);
+        }
+
+        Departement departement = null;
+        if (villeDto.getDepartement() != null && !villeDto.getDepartement().isEmpty()) {
+            departement = departementDao.findByNomIgnoreCase(villeDto.getDepartement())
+                    .orElse(null);
+
+            if (departement == null) {
+                return ResponseEntity.badRequest().body("Département introuvable");
+            }
+        }
+
+        Ville villeModifiee = MapperUtil.toVille(villeDto, departement);
+
+        List<Ville> villes = villeService.modifierVilleParNom(nom, villeModifiee);
+
+        List<VilleDto> dtos = villes.stream().map(MapperUtil::toVilleDto).toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
     @DeleteMapping("/{nom}")
-    public ResponseEntity<List<Ville>> deleteVille(@PathVariable String nom) {
-        // Appeler méthode service qui supprime ville par nom
+    public ResponseEntity<List<VilleDto>> deleteVille(@PathVariable String nom) {
         List<Ville> villes = villeService.supprimerVilleParNom(nom);
-        return ResponseEntity.ok(villes);
+        List<VilleDto> dtos = villes.stream().map(MapperUtil::toVilleDto).toList();
+        return ResponseEntity.ok(dtos);
     }
 }

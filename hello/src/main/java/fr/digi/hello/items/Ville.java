@@ -1,5 +1,6 @@
 package fr.digi.hello.items;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 /**
@@ -27,6 +28,11 @@ public class Ville {
      */
     private Integer nbHabitants;
 
+    @ManyToOne
+    @JoinColumn(name = "departement_id")
+    @JsonIgnoreProperties("villes")
+    private Departement departement;
+
     /**
      * Constructeur vide par défaut.
      */
@@ -39,10 +45,11 @@ public class Ville {
      * @param nom Nom de la ville.
      * @param nbHabitants Nombre d'habitants.
      */
-    public Ville(Integer id, String nom, Integer nbHabitants) {
+    public Ville(Integer id, String nom, Integer nbHabitants, Departement departement) {
         this.id = id;
         this.nom = nom;
         this.nbHabitants = nbHabitants;
+        this.departement = departement;
     }
 
     /**
@@ -96,6 +103,15 @@ public class Ville {
      * @param nbHabitants Nouveau nombre d'habitants à attribuer.
      */
     public void setNbHabitants(int nbHabitants) {
+
         this.nbHabitants = nbHabitants;
+    }
+
+    public Departement getDepartement() {
+        return departement;
+    }
+
+    public void setDepartement(Departement departement) {
+        this.departement = departement;
     }
 }
