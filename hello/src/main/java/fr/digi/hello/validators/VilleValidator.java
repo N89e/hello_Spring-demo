@@ -1,6 +1,6 @@
 package fr.digi.hello.validators;
 
-import fr.digi.hello.services.Ville;
+import fr.digi.hello.items.Ville;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

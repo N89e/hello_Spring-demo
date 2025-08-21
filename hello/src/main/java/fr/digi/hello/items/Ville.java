@@ -1,32 +1,30 @@
-package fr.digi.hello.services;
+package fr.digi.hello.items;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
 
 /**
  * Représente une ville avec un identifiant, un nom et un nombre d'habitants.
  * Cette classe utilise des annotations Bean Validation pour valider ses attributs.
  */
+@Entity
+@Table(name = "villes")
 public class Ville {
 
     /**
      * Identifiant unique de la ville.
      */
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     /**
      * Nom de la ville. Ne peut pas être nul et doit contenir au moins 2 caractères.
      */
-//    @NotNull(message = "Le nom de la ville ne peut pas être nul")
-//    @Size(min = 2, message = "Le nom de la ville doit contenir au moins 2 caractères")
     private String nom;
 
     /**
      * Nombre d'habitants de la ville. Ne peut pas être nul et doit être supérieur ou égal à 1.
      */
-//    @NotNull(message = "Le nombre d'habitant de la ville ne peut pas être nul")
-//    @Min(value = 1, message = "Le nombre d'habitants doit être supérieur ou égal à 1")
     private Integer nbHabitants;
 
     /**
@@ -41,7 +39,7 @@ public class Ville {
      * @param nom Nom de la ville.
      * @param nbHabitants Nombre d'habitants.
      */
-    public Ville(int id, String nom, Integer nbHabitants) {
+    public Ville(Integer id, String nom, Integer nbHabitants) {
         this.id = id;
         this.nom = nom;
         this.nbHabitants = nbHabitants;
@@ -52,7 +50,7 @@ public class Ville {
      *
      * @return l'id de la ville.
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -61,7 +59,7 @@ public class Ville {
      *
      * @param id Nouvel identifiant à attribuer.
      */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
