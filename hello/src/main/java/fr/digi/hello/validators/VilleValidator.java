@@ -37,7 +37,7 @@ public class VilleValidator implements Validator {
         if (ville.getNom() == null || ville.getNom().length() < 2) {
             errors.rejectValue("nom", "nom.size", "Le nom de la ville doit contenir au moins 2 caractères");
         }
-        if (ville.getNbHabitants() < 1) {
+        if (ville.getNbHabitants() == null || ville.getNbHabitants() < 1) {
             errors.rejectValue("nbHabitants", "habitants.min", "Le nombre d'habitants doit être supérieur ou égal à 1");
         }
     }

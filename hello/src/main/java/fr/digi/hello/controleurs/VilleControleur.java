@@ -61,6 +61,9 @@ public class VilleControleur {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @Autowired
+    private VilleValidator villeValidator;
+
     /**
      * Endpoint POST pour ajouter une nouvelle ville.
      * La validation Bean Validation est appliquée sur l'objet Ville reçu.
@@ -72,6 +75,15 @@ public class VilleControleur {
      */
     @PostMapping
     public ResponseEntity<?> ajouterVille(@Valid @RequestBody Ville nouvelleVille, BindingResult bindingResult) {
+
+        villeValidator.validate(nouvelleVille, bindingResult);
+
+//        if (nouvelleVille.getNom()==null){
+//            return ResponseEntity.badRequest().body("Le nom de la ville ne peut pas être null");
+//        }
+//        if (nouvelleVille.getNom().length()<2) {
+//            return ResponseEntity.badRequest().body("Le nom de la ville doit avoir au moins deux caractères");
+//        }
 
         if (bindingResult.hasErrors()) {
             List<String> erreurs = bindingResult.getAllErrors()
@@ -99,9 +111,6 @@ public class VilleControleur {
         return ResponseEntity.ok("Ville insérée avec succès");
     }
 
-    @Autowired
-    private VilleValidator villeValidator;
-
     /**
      * Endpoint PUT pour modifier une ville en la recherchant par son nom passé en URL.
      * Valide les données envoyées, recherche la ville existante et met à jour ses attributs.
@@ -112,9 +121,7 @@ public class VilleControleur {
      * @return Un message de succès ou les erreurs de validation / non-trouvabilité correspondant.
      */
     @PutMapping("/{nom}")
-    public ResponseEntity<?> modifierVilleParNom(
-            @PathVariable String nom,
-            @RequestBody Ville modifVille) {
+    public ResponseEntity<?> modifierVilleParNom(@PathVariable String nom, @RequestBody Ville modifVille) {
 
         Errors erreurs = new BeanPropertyBindingResult(modifVille, "ville");
         villeValidator.validate(modifVille, erreurs);

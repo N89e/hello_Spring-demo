@@ -18,16 +18,16 @@ public class Ville {
     /**
      * Nom de la ville. Ne peut pas être nul et doit contenir au moins 2 caractères.
      */
-    @NotNull(message = "Le nom de la ville ne peut pas être nul")
-    @Size(min = 2, message = "Le nom de la ville doit contenir au moins 2 caractères")
+//    @NotNull(message = "Le nom de la ville ne peut pas être nul")
+//    @Size(min = 2, message = "Le nom de la ville doit contenir au moins 2 caractères")
     private String nom;
 
     /**
      * Nombre d'habitants de la ville. Ne peut pas être nul et doit être supérieur ou égal à 1.
      */
-    @NotNull(message = "Le nombre d'habitant de la ville ne peut pas être nul")
-    @Min(value = 1, message = "Le nombre d'habitants doit être supérieur ou égal à 1")
-    private int nbHabitants;
+//    @NotNull(message = "Le nombre d'habitant de la ville ne peut pas être nul")
+//    @Min(value = 1, message = "Le nombre d'habitants doit être supérieur ou égal à 1")
+    private Integer nbHabitants;
 
     /**
      * Constructeur vide par défaut.
@@ -41,7 +41,7 @@ public class Ville {
      * @param nom Nom de la ville.
      * @param nbHabitants Nombre d'habitants.
      */
-    public Ville(int id, String nom, int nbHabitants) {
+    public Ville(int id, String nom, Integer nbHabitants) {
         this.id = id;
         this.nom = nom;
         this.nbHabitants = nbHabitants;
@@ -88,7 +88,7 @@ public class Ville {
      *
      * @return le nombre d'habitants.
      */
-    public int getNbHabitants() {
+    public Integer getNbHabitants() {
         return nbHabitants;
     }
 
