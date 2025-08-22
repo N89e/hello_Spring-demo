@@ -4,46 +4,47 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 /**
- * Représente une ville avec un identifiant, un nom et un nombre d'habitants.
- * Cette classe utilise des annotations Bean Validation pour valider ses attributs.
+ * Entité JPA représentant une ville.
+ * Une ville possède un identifiant unique, un nom et un nombre d’habitants.
+ * Elle est reliée à un {@link Departement} via une relation {@code ManyToOne}.
  */
 @Entity
 @Table(name = "villes")
 public class Ville {
 
-    /**
-     * Identifiant unique de la ville.
-     */
+    /** Identifiant unique de la ville (auto-généré). */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * Nom de la ville. Ne peut pas être nul et doit contenir au moins 2 caractères.
-     */
+    /** Nom de la ville. */
     private String nom;
 
-    /**
-     * Nombre d'habitants de la ville. Ne peut pas être nul et doit être supérieur ou égal à 1.
-     */
+    /** Nombre d’habitants de la ville. */
     private Integer nbHabitants;
 
+    /**
+     * Département auquel appartient la ville.
+     * Relation {@code ManyToOne} : plusieurs villes peuvent être liées à un département.
+     * L’annotation {@code @JsonIgnoreProperties("villes")} évite une boucle infinie
+     * lors de la sérialisation JSON.
+     */
     @ManyToOne
     @JoinColumn(name = "departement_id")
     @JsonIgnoreProperties("villes")
     private Departement departement;
 
-    /**
-     * Constructeur vide par défaut.
-     */
-    public Ville() {}
+    /** Constructeur par défaut requis par JPA. */
+    public Ville() {
+    }
 
     /**
-     * Constructeur avec paramètres.
+     * Constructeur complet.
      *
-     * @param id Identifiant unique de la ville.
-     * @param nom Nom de la ville.
-     * @param nbHabitants Nombre d'habitants.
+     * @param id identifiant unique
+     * @param nom nom de la ville
+     * @param nbHabitants nombre d’habitants
+     * @param departement département associé
      */
     public Ville(Integer id, String nom, Integer nbHabitants, Departement departement) {
         this.id = id;
@@ -53,58 +54,34 @@ public class Ville {
     }
 
     /**
-     * Récupère l'identifiant de la ville.
+     * Met à jour le nombre d’habitants de la ville.
      *
-     * @return l'id de la ville.
+     * @param nbHabitants nouveau nombre d’habitants
      */
+    public void setNbHabitants(int nbHabitants) {
+        this.nbHabitants = nbHabitants;
+    }
+
+    // Getters / Setters classiques (pas besoin de JavaDoc détaillée)
+
     public Integer getId() {
         return id;
     }
 
-    /**
-     * Définit l'identifiant de la ville.
-     *
-     * @param id Nouvel identifiant à attribuer.
-     */
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * Récupère le nom de la ville.
-     *
-     * @return le nom de la ville.
-     */
     public String getNom() {
         return nom;
     }
 
-    /**
-     * Définit le nom de la ville.
-     *
-     * @param nom Nouveau nom à attribuer.
-     */
     public void setNom(String nom) {
         this.nom = nom;
     }
 
-    /**
-     * Récupère le nombre d'habitants de la ville.
-     *
-     * @return le nombre d'habitants.
-     */
     public Integer getNbHabitants() {
         return nbHabitants;
-    }
-
-    /**
-     * Définit le nombre d'habitants de la ville.
-     *
-     * @param nbHabitants Nouveau nombre d'habitants à attribuer.
-     */
-    public void setNbHabitants(int nbHabitants) {
-
-        this.nbHabitants = nbHabitants;
     }
 
     public Departement getDepartement() {

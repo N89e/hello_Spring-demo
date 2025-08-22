@@ -8,6 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface DepartementDao extends JpaRepository<Departement, Integer> {
+
     Optional<Departement> findByNomIgnoreCase(String nom);
+    Optional<Departement> findByCodeIgnoreCase(String code);
 
 }
